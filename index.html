@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAPA NORTE BSG</title>
+    <title>Actualizador de Mapa por Comando</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -78,7 +78,6 @@
             font-size: 15px;
         }
         
-       
         .guia-contenedor {
             margin-top: 30px;
             border-top: 2px dashed #bdc3c7;
@@ -93,7 +92,6 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
         .mapa-ejemplo {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -105,20 +103,19 @@
             background-color: #dcdde1;
             border: 1px solid #7f8c8d;
             border-radius: 4px;
-            padding: 10px 5px;
+            padding: 12px 2px;
             text-align: center;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
             color: #333;
         }
         .celda.referencia {
-            background-color: #f1c40f; 
+            background-color: #f1c40f;
             color: #000;
         }
         .celda.destino {
-            background-color: #9cc2e5; 
+            background-color: #9cc2e5;
             border: 1px solid #000;
-            font-weight: bold;
         }
         .lista-comandos {
             font-size: 13px;
@@ -140,38 +137,38 @@
 
 <div class="container">
     <h2>Consola de Ubicaciones</h2>
-    <p class="sub">Control de posiciones en tiempo real para el Mapa Allianz</p>
+    <p class="sub">Control de posiciones rápido para el Mapa Allianz</p>
     
     <form id="formularioComando">
         <label for="comando">Ingresa el Comando de Posición</label>
-        <input type="text" id="comando" placeholder="Ej: HDL211 enfrente de DTM916" required autocomplete="off">
+        <input type="text" id="comando" placeholder="Ej: DJS023 enfrente INV523" required autocomplete="off">
         <button type="submit">Actualizar Posición</button>
     </form>
     
     <div id="mensaje"></div>
 
     <div class="guia-contenedor">
-        <div class="guia-titulo"> 💡 Guía de Comandos Básicos 💡 </div>
+        <div class="guia-titulo">💡 Comandos Rápidos</div>
         
         <div class="mapa-ejemplo">
             <div class="celda"></div>
-            <div class="celda destino" id="ej-enfrente">enfrente de</div>
+            <div class="celda destino">enfrente</div>
             <div class="celda"></div>
             
-            <div class="celda destino" id="ej-izquierda">a la izquierda de</div>
+            <div class="celda destino">izquierda</div>
             <div class="celda referencia">PLACA_REF</div>
-            <div class="celda destino" id="ej-derecha">a la derecha de</div>
+            <div class="celda destino">derecha</div>
             
             <div class="celda"></div>
-            <div class="celda destino" id="ej-atras">atras de</div>
+            <div class="celda destino">atras</div>
             <div class="celda"></div>
         </div>
 
         <ul class="lista-comandos">
-            <li><code>AAA111 enfrente de BBB222</code> <br>Coloca la placa arriba de la referencia.</li>
-            <li><code>AAA111 atras de BBB222</code> <br>Coloca la placa abajo de la referencia.</li>
-            <li><code>AAA111 a la derecha de BBB222</code> <br>Coloca la placa al lado derecho.</li>
-            <li><code>AAA111 a la izquierda de BBB222</code> <br>Coloca la placa al lado izquierdo.</li>
+            <li><code>DJS023 enfrente INV523</code> <br>Arriba de la referencia.</li>
+            <li><code>DJS023 atras INV523</code> <br>Abajo de la referencia.</li>
+            <li><code>DJS023 derecha INV523</code> <br>Al lado derecho.</li>
+            <li><code>DJS023 izquierda INV523</code> <br>Al lado izquierdo.</li>
         </ul>
     </div>
 </div>
@@ -188,27 +185,25 @@
         mensajeDiv.style.color = '#34495e';
         mensajeDiv.innerText = 'Procesando comando...';
 
-        const datos = {
-            comando: campoComando.value
-        };
-
         fetch(URL_GOOGLE_SCRIPT, {
             method: 'POST',
-            mode: 'no-cors',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(datos)
+            body: new URLSearchParams({ 'comando': campoComando.value })
         })
-        .then(() => {
-            mensajeDiv.style.color = '#27ae60';
-            mensajeDiv.innerText = '¡Comando ejecutado y guardado con éxito!';
-            campoComando.value = ''; 
+        .then(response => response.text())
+        .then(resultado => {
+            if (resultado.includes("Éxito")) {
+                mensajeDiv.style.color = '#27ae60';
+                mensajeDiv.innerText = '¡Comando ejecutado y guardado con éxito!';
+                campoComando.value = ''; 
+            } else {
+                mensajeDiv.style.color = '#c0392b';
+                mensajeDiv.innerText = '❌ ' + resultado; 
+            }
         })
         .catch(error => {
             console.error('Error:', error);
             mensajeDiv.style.color = '#c0392b';
-            mensajeDiv.innerText = 'Error al enviar el comando.';
+            mensajeDiv.innerText = 'Error crítico al conectar con el servidor.';
         });
     });
 </script>
