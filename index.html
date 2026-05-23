@@ -11,29 +11,30 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
         }
         .container {
             background: white;
-            padding: 35px;
+            padding: 30px;
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.15);
             width: 100%;
-            max-width: 450px;
+            max-width: 480px;
         }
         h2 {
             text-align: center;
             color: #2c3e50;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             font-size: 22px;
         }
         p.sub {
             text-align: center;
             color: #7f8c8d;
             font-size: 14px;
-            margin-bottom: 25px;
-            line-height: 1.5;
+            margin-bottom: 20px;
         }
         label {
             display: block;
@@ -44,7 +45,7 @@
         input[type="text"] {
             width: 100%;
             padding: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border: 2px solid #bdc3c7;
             border-radius: 6px;
             box-sizing: border-box;
@@ -72,67 +73,47 @@
         }
         #mensaje {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 15px;
             font-weight: bold;
             font-size: 15px;
         }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h2>Consola de Ubicaciones</h2>
-    <p class="sub">
-        Escribe la placa seguido de la instrucción de su posición:<br>
-        <strong>enfrente de | atras de | a la derecha de | a la izquierda de</strong>
-    </p>
-    
-    <form id="formularioComando">
-        <label for="comando">Ingresa el Comando de Posición</label>
-        <input type="text" id="comando" placeholder="Ej: HDL211 enfrente de DTM916" required autocomplete="off">
-
-        <button type="submit">Actualizar Posición</button>
-    </form>
-    <div id="mensaje"></div>
-</div>
-
-<script>
-    // URL de tu Google Apps Script actualizado
-    const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbyvXzfiL91AzhipQpdocPihooWIW4kgXxxQ31UEgJaBwiqzVLtuMjH1-TSNskmBg-oBnQ/exec"
-
-    document.getElementById('formularioComando').addEventListener('submit', function(e) {
-        e.preventDefault();
         
-        const mensajeDiv = document.getElementById('mensaje');
-        const campoComando = document.getElementById('comando');
-        
-        mensajeDiv.style.color = '#34495e';
-        mensajeDiv.innerText = 'Procesando comando...';
-
-        const datos = {
-            comando: campoComando.value
-        };
-
-        fetch(URL_GOOGLE_SCRIPT, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(datos)
-        })
-        .then(() => {
-            mensajeDiv.style.color = '#27ae60';
-            mensajeDiv.innerText = '¡Comando ejecutado y guardado con éxito!';
-            campoComando.value = ''; 
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            mensajeDiv.style.color = '#c0392b';
-            mensajeDiv.innerText = 'Error al enviar el comando.';
-        });
-    });
-</script>
-
-</body>
-</html>
+        /* --- NUEVA SECCIÓN DE GUÍA VISUAL --- */
+        .guia-contenedor {
+            margin-top: 30px;
+            border-top: 2px dashed #bdc3c7;
+            padding-top: 20px;
+        }
+        .guia-titulo {
+            font-size: 15px;
+            color: #2c3e50;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        /* Simulación de la cuadrícula de Excel */
+        .mapa-ejemplo {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            max-width: 300px;
+            margin: 0 auto 15px auto;
+        }
+        .celda {
+            background-color: #dcdde1;
+            border: 1px solid #7f8c8d;
+            border-radius: 4px;
+            padding: 10px 5px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+        }
+        .celda.referencia {
+            background-color: #f1c40f; /* Amarillo como tu mapa */
+            color: #000;
+        }
+        .celda.destino {
+            background-color: #9cc
