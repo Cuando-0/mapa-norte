@@ -38,9 +38,10 @@
         }
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: #34495e;
             font-weight: bold;
+            font-size: 14px;
         }
         input[type="text"] {
             width: 100%;
@@ -56,6 +57,10 @@
             border-color: #3498db;
             outline: none;
         }
+        /* Estilo especial para advertir al usuario sobre la confirmación */
+        .alerta-input {
+            border-color: #e67e22 !important;
+        }
         button {
             width: 100%;
             padding: 14px;
@@ -67,6 +72,7 @@
             cursor: pointer;
             font-weight: bold;
             transition: background-color 0.3s;
+            margin-top: 5px;
         }
         button:hover {
             background-color: #27ae60;
@@ -78,8 +84,9 @@
             font-size: 15px;
         }
         
+        /* SECCIÓN VISUAL DE GUÍA */
         .guia-contenedor {
-            margin-top: 30px;
+            margin-top: 25px;
             border-top: 2px dashed #bdc3c7;
             padding-top: 20px;
         }
@@ -142,6 +149,10 @@
     <form id="formularioComando">
         <label for="comando">Ingresa el Comando de Posición</label>
         <input type="text" id="comando" placeholder="Ej: DJS023 enfrente INV523" required autocomplete="off">
+        
+        <label for="confirmarPlaca">Confirma la PLACA NUEVA a ingresar</label>
+        <input type="text" id="confirmarPlaca" class="alerta-input" placeholder="Ej: DJS023" required autocomplete="off" maxlength="6">
+
         <button type="submit">Actualizar Posición</button>
     </form>
     
@@ -181,13 +192,27 @@
         
         const mensajeDiv = document.getElementById('mensaje');
         const campoComando = document.getElementById('comando');
+        const campoConfirmar = document.getElementById('confirmarPlaca');
+        
+        // 1. Extraer la primera palabra del comando (la placa nueva que se pretende registrar)
+        const textoComando = campoComando.value.trim();
+        const primeraPalabra = textoComando.split(/\s+/)[0].toUpperCase();
+        const placaVerificacion = campoConfirmar.value.trim().toUpperCase();
+
+        // 2. DOBLE VERIFICACIÓN INTERNA
+        if (primeraPalabra !== placaVerificacion) {
+            mensajeDiv.style.color = '#e67e22'; // Naranja de advertencia
+            mensajeDiv.innerText = '⚠️ La placa del comando no coincide con la placa de confirmación. Revisa lo que escribiste.';
+            return; // Bloquea el envío definitivo
+        }
         
         mensajeDiv.style.color = '#34495e';
         mensajeDiv.innerText = 'Procesando comando...';
 
+        // 3. Si coinciden perfectamente, se envía a Google Sheets
         fetch(URL_GOOGLE_SCRIPT, {
             method: 'POST',
-            body: new URLSearchParams({ 'comando': campoComando.value })
+            body: new URLSearchParams({ 'comando': textoComando })
         })
         .then(response => response.text())
         .then(resultado => {
@@ -195,6 +220,7 @@
                 mensajeDiv.style.color = '#27ae60';
                 mensajeDiv.innerText = '¡Comando ejecutado y guardado con éxito!';
                 campoComando.value = ''; 
+                campoConfirmar.value = '';
             } else {
                 mensajeDiv.style.color = '#c0392b';
                 mensajeDiv.innerText = '❌ ' + resultado; 
