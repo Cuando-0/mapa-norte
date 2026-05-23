@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Actualizador de Mapa por Comando</title>
+    <title>MAPA NORTE BSG</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -78,7 +78,7 @@
             font-size: 15px;
         }
         
-        /* --- NUEVA SECCIÓN DE GUÍA VISUAL --- */
+       
         .guia-contenedor {
             margin-top: 30px;
             border-top: 2px dashed #bdc3c7;
@@ -93,7 +93,7 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        /* Simulación de la cuadrícula de Excel */
+        
         .mapa-ejemplo {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -112,8 +112,106 @@
             color: #333;
         }
         .celda.referencia {
-            background-color: #f1c40f; /* Amarillo como tu mapa */
+            background-color: #f1c40f; 
             color: #000;
         }
         .celda.destino {
-            background-color: #9cc
+            background-color: #9cc2e5; 
+            border: 1px solid #000;
+            font-weight: bold;
+        }
+        .lista-comandos {
+            font-size: 13px;
+            color: #555;
+            padding-left: 20px;
+            line-height: 1.6;
+        }
+        .lista-comandos code {
+            background-color: #e0e0e0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+            color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Consola de Ubicaciones</h2>
+    <p class="sub">Control de posiciones en tiempo real para el Mapa Allianz</p>
+    
+    <form id="formularioComando">
+        <label for="comando">Ingresa el Comando de Posición</label>
+        <input type="text" id="comando" placeholder="Ej: HDL211 enfrente de DTM916" required autocomplete="off">
+        <button type="submit">Actualizar Posición</button>
+    </form>
+    
+    <div id="mensaje"></div>
+
+    <div class="guia-contenedor">
+        <div class="guia-titulo"> 💡 Guía de Comandos Básicos 💡 </div>
+        
+        <div class="mapa-ejemplo">
+            <div class="celda"></div>
+            <div class="celda destino" id="ej-enfrente">enfrente de</div>
+            <div class="celda"></div>
+            
+            <div class="celda destino" id="ej-izquierda">a la izquierda de</div>
+            <div class="celda referencia">PLACA_REF</div>
+            <div class="celda destino" id="ej-derecha">a la derecha de</div>
+            
+            <div class="celda"></div>
+            <div class="celda destino" id="ej-atras">atras de</div>
+            <div class="celda"></div>
+        </div>
+
+        <ul class="lista-comandos">
+            <li><code>AAA111 enfrente de BBB222</code> <br>Coloca la placa arriba de la referencia.</li>
+            <li><code>AAA111 atras de BBB222</code> <br>Coloca la placa abajo de la referencia.</li>
+            <li><code>AAA111 a la derecha de BBB222</code> <br>Coloca la placa al lado derecho.</li>
+            <li><code>AAA111 a la izquierda de BBB222</code> <br>Coloca la placa al lado izquierdo.</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbyvXzfiL91AzhipQpdocPihooWIW4kgXxxQ31UEgJaBwiqzVLtuMjH1-TSNskmBg-oBnQ/exec";
+
+    document.getElementById('formularioComando').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const mensajeDiv = document.getElementById('mensaje');
+        const campoComando = document.getElementById('comando');
+        
+        mensajeDiv.style.color = '#34495e';
+        mensajeDiv.innerText = 'Procesando comando...';
+
+        const datos = {
+            comando: campoComando.value
+        };
+
+        fetch(URL_GOOGLE_SCRIPT, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(datos)
+        })
+        .then(() => {
+            mensajeDiv.style.color = '#27ae60';
+            mensajeDiv.innerText = '¡Comando ejecutado y guardado con éxito!';
+            campoComando.value = ''; 
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mensajeDiv.style.color = '#c0392b';
+            mensajeDiv.innerText = 'Error al enviar el comando.';
+        });
+    });
+</script>
+
+</body>
+</html>
