@@ -81,7 +81,10 @@
 
 <div class="container">
     <h2>Consola de Ubicaciones</h2>
-    <p class="sub">Escribe la placa primero seguida de la instrucción de su posición.</p>
+    <p class="sub">Escribe la placa primero seguida de la instrucción de su posición.
+    al frente de 
+    al lado de 
+    </p>
     
     <form id="formularioComando">
         <label for="comando">Ingresa el Comando de Posición</label>
@@ -93,7 +96,7 @@
 </div>
 
 <script>
-    // REEMPLAZA ESTA URL por la de tu nueva implementación en Google Apps Script
+    
     const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbyvXzfiL91AzhipQpdocPihooWIW4kgXxxQ31UEgJaBwiqzVLtuMjH1-TSNskmBg-oBnQ/exec"
 
     document.getElementById('formularioComando').addEventListener('submit', function(e) {
@@ -120,7 +123,7 @@
         .then(() => {
             mensajeDiv.style.color = '#27ae60';
             mensajeDiv.innerText = '¡Comando ejecutado y guardado con éxito!';
-            campoComando.value = ''; // Limpia la barra para el siguiente comando
+            campoComando.value = ''; 
         })
         .catch(error => {
             console.error('Error:', error);
