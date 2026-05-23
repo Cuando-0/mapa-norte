@@ -33,6 +33,7 @@
             color: #7f8c8d;
             font-size: 14px;
             margin-bottom: 25px;
+            line-height: 1.5;
         }
         label {
             display: block;
@@ -81,14 +82,14 @@
 
 <div class="container">
     <h2>Consola de Ubicaciones</h2>
-    <p class="sub">Escribe la placa primero seguida de la instrucción de su posición.
-    al frente de 
-    al lado de 
+    <p class="sub">
+        Escribe la placa seguido de la instrucción de su posición:<br>
+        <strong>enfrente de | atras de | a la derecha de | a la izquierda de</strong>
     </p>
     
     <form id="formularioComando">
         <label for="comando">Ingresa el Comando de Posición</label>
-        <input type="text" id="comando" placeholder="Ej: HDL211 al lado derecho de FSK041" required autocomplete="off">
+        <input type="text" id="comando" placeholder="Ej: HDL211 enfrente de DTM916" required autocomplete="off">
 
         <button type="submit">Actualizar Posición</button>
     </form>
@@ -96,7 +97,7 @@
 </div>
 
 <script>
-    
+    // URL de tu Google Apps Script actualizado
     const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbyvXzfiL91AzhipQpdocPihooWIW4kgXxxQ31UEgJaBwiqzVLtuMjH1-TSNskmBg-oBnQ/exec"
 
     document.getElementById('formularioComando').addEventListener('submit', function(e) {
