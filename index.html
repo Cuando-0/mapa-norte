@@ -1,137 +1,72 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Actualizador de Mapa por Comando</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #eef2f3;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background: white;
-            padding: 35px;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-            width: 100%;
-            max-width: 450px;
-        }
-        h2 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 10px;
-            font-size: 22px;
-        }
-        p.sub {
-            text-align: center;
-            color: #7f8c8d;
-            font-size: 14px;
-            margin-bottom: 25px;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #34495e;
-            font-weight: bold;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border: 2px solid #bdc3c7;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 15px;
-            transition: border-color 0.3s;
-        }
-        input[type="text"]:focus {
-            border-color: #3498db;
-            outline: none;
-        }
-        button {
-            width: 100%;
-            padding: 14px;
-            background-color: #2ecc71;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #27ae60;
-        }
-        #mensaje {
-            text-align: center;
-            margin-top: 20px;
-            font-weight: bold;
-            font-size: 15px;
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h2>Consola de Ubicaciones</h2>
-    <p class="sub">Escribe la placa primero seguida de la instrucción de su posición.
-    al frente de 
-    al lado de 
-    </p>
+function doPost(e) {
+  try {
+    // 1. Recibir y parsear el comando enviado desde el HTML
+    var datos = JSON.parse(e.postData.contents);
+    var comando = datos.comando.trim();
     
-    <form id="formularioComando">
-        <label for="comando">Ingresa el Comando de Posición</label>
-        <input type="text" id="comando" placeholder="Ej: HDL211 al lado derecho de FSK041" required autocomplete="off">
-
-        <button type="submit">Actualizar Posición</button>
-    </form>
-    <div id="mensaje"></div>
-</div>
-
-<script>
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     
-    const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbyvXzfiL91AzhipQpdocPihooWIW4kgXxxQ31UEgJaBwiqzVLtuMjH1-TSNskmBg-oBnQ/exec"
-
-    document.getElementById('formularioComando').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const mensajeDiv = document.getElementById('mensaje');
-        const campoComando = document.getElementById('comando');
-        
-        mensajeDiv.style.color = '#34495e';
-        mensajeDiv.innerText = 'Procesando comando...';
-
-        const datos = {
-            comando: campoComando.value
-        };
-
-        fetch(URL_GOOGLE_SCRIPT, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(datos)
-        })
-        .then(() => {
-            mensajeDiv.style.color = '#27ae60';
-            mensajeDiv.innerText = '¡Comando ejecutado y guardado con éxito!';
-            campoComando.value = ''; 
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            mensajeDiv.style.color = '#c0392b';
-            mensajeDiv.innerText = 'Error al enviar el comando.';
-        });
-    });
-</script>
-
-</body>
-</html>
+    // 2. Expresión regular para entender el comando
+    // Soporta: "PLACA1 [comando] PLACA2"
+    var regex = /^([A-Z0-9]+)\s+(enfrente de|atras de|a la derecha de|a la izquierda de)\s+([A-Z0-9]+)$/i;
+    var match = comando.match(regex);
+    
+    if (!match) {
+      return ContentService.createTextOutput("Comando con formato incorrecto.");
+    }
+    
+    var placaMover = match[1].toUpperCase();
+    var accion = match[2].toLowerCase();
+    var placaReferencia = match[3].toUpperCase();
+    
+    // 3. Buscar la celda de la placa de referencia en el mapa
+    var textFinder = sheet.createTextFinder(placaReferencia);
+    var celdaReferencia = textFinder.findNext();
+    
+    if (!celdaReferencia) {
+      return ContentService.createTextOutput("No se encontró la placa de referencia: " + placaReferencia);
+    }
+    
+    var filaRef = celdaReferencia.getRow();
+    var colRef = celdaReferencia.getColumn();
+    
+    // 4. Determinar la nueva celda según el comando de posición
+    var nuevaFila = filaRef;
+    var nuevaCol = colRef;
+    
+    switch (accion) {
+      case "enfrente de":
+        // Mirando el mapa de tu imagen, "enfrente" suele ser la fila de arriba (hacia la carretera 1)
+        nuevaFila = filaRef - 1; 
+        break;
+      case "atras de":
+        // "Atrás" suele ser la fila de abajo (hacia la carretera 2 o rampas)
+        nuevaFila = filaRef + 1;
+        break;
+      case "a la derecha de":
+        nuevaCol = colRef + 1;
+        break;
+      case "a la izquierda de":
+        nuevaCol = colRef - 1;
+        break;
+    }
+    
+    // 5. Buscar si la placa ya existía en el mapa para borrarla de su posición vieja
+    var buscadorViejo = sheet.createTextFinder(placaMover);
+    var celdaVieja = buscadorViejo.findNext();
+    if (celdaVieja) {
+      celdaVieja.setValue("");
+      celdaVieja.setBackground("#FFFFFF"); // O el color gris de tu fondo si prefieres
+    }
+    
+    // 6. Asignar la placa a la nueva celda y pintarla de azul claro
+    var nuevaCelda = sheet.getRange(nuevaFila, nuevaCol);
+    nuevaCelda.setValue(placaMover);
+    nuevaCelda.setBackground("#9cc2e5"); // <--- Aquí se aplica tu color solicitado
+    
+    return ContentService.createTextOutput("Posición actualizada con éxito.");
+    
+  } catch(error) {
+    return ContentService.createTextOutput("Error en el script: " + error.toString());
+  }
+}
