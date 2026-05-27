@@ -36,6 +36,36 @@
             font-size: 14px;
             margin-bottom: 20px;
         }
+        
+        /* --- ESTILOS DE LOS NUEVOS BOTONES DE REDIRECCIÓN --- */
+        .seccion-enlaces {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px dashed #bdc3c7;
+        }
+        .btn-enlace {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            padding: 12px;
+            color: white;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        .btn-enlace:active {
+            transform: scale(0.98);
+        }
+        /* Colores para diferenciar las pestañas */
+        .btn-azul { background-color: #3498db; }
+        .btn-azul:hover { background-color: #2980b9; }
+        .btn-gris { background-color: #7f8c8d; }
+        .btn-gris:hover { background-color: #6c7a89; }
+        
         label {
             display: block;
             margin-bottom: 6px;
@@ -57,11 +87,10 @@
             border-color: #3498db;
             outline: none;
         }
-        /* Estilo especial para advertir al usuario sobre la confirmación */
-        .alerta-input {
-            border-color: #e67e22 !important;
+        .operador-input {
+            border: 2px solid #34495e;
         }
-        button {
+        button[type="submit"] {
             width: 100%;
             padding: 14px;
             background-color: #2ecc71;
@@ -74,7 +103,7 @@
             transition: background-color 0.3s;
             margin-top: 5px;
         }
-        button:hover {
+        button[type="submit"]:hover {
             background-color: #27ae60;
         }
         #mensaje {
@@ -121,7 +150,7 @@
             color: #000;
         }
         .celda.destino {
-            background-color: #9cc2e5;
+            background-color: #aeb6bf;
             border: 1px solid #000;
         }
         .lista-comandos {
@@ -146,12 +175,24 @@
     <h2>Consola de Ubicaciones</h2>
     <p class="sub">Control de posiciones rápido para el Mapa Allianz</p>
     
+    <div class="seccion-enlaces">
+        <label>Acceso a Otras Pestañas</label>
+        
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLScLoGiFsouR2BVPzduNYmVDT-teY5TYj--fyrG4vhM6DRwU6g/viewform" target="_blank" class="btn-enlace btn-azul">
+            📥 Ingreso de Vehículo
+        </a>
+        
+        <a href="#" target="_blank" class="btn-enlace btn-gris">
+            📊 Ver Reportes (Opcional)
+        </a>
+    </div>
+
     <form id="formularioComando">
+        <label for="operador">Nombre del Operador</label>
+        <input type="text" id="operador" class="operador-input" placeholder="Ej: Sebastián Rojas" required autocomplete="on">
+
         <label for="comando">Ingresa el Comando de Posición</label>
         <input type="text" id="comando" placeholder="Ej: DJS023 enfrente INV523" required autocomplete="off">
-        
-        <label for="confirmarPlaca">Confirma la PLACA NUEVA a ingresar</label>
-        <input type="text" id="confirmarPlaca" class="alerta-input" placeholder="Ej: DJS023" required autocomplete="off" maxlength="6">
 
         <button type="submit">Actualizar Posición</button>
     </form>
@@ -192,27 +233,17 @@
         
         const mensajeDiv = document.getElementById('mensaje');
         const campoComando = document.getElementById('comando');
-        const campoConfirmar = document.getElementById('confirmarPlaca');
-        
-        // 1. Extraer la primera palabra del comando (la placa nueva que se pretende registrar)
-        const textoComando = campoComando.value.trim();
-        const primeraPalabra = textoComando.split(/\s+/)[0].toUpperCase();
-        const placaVerificacion = campoConfirmar.value.trim().toUpperCase();
-
-        // 2. DOBLE VERIFICACIÓN INTERNA
-        if (primeraPalabra !== placaVerificacion) {
-            mensajeDiv.style.color = '#e67e22'; // Naranja de advertencia
-            mensajeDiv.innerText = '⚠️ La placa del comando no coincide con la placa de confirmación. Revisa lo que escribiste.';
-            return; // Bloquea el envío definitivo
-        }
+        const campoOperador = document.getElementById('operador');
         
         mensajeDiv.style.color = '#34495e';
         mensajeDiv.innerText = 'Procesando comando...';
 
-        // 3. Si coinciden perfectamente, se envía a Google Sheets
         fetch(URL_GOOGLE_SCRIPT, {
             method: 'POST',
-            body: new URLSearchParams({ 'comando': textoComando })
+            body: new URLSearchParams({ 
+                'comando': campoComando.value.trim(),
+                'operador': campoOperador.value.trim()
+            })
         })
         .then(response => response.text())
         .then(resultado => {
@@ -220,7 +251,6 @@
                 mensajeDiv.style.color = '#27ae60';
                 mensajeDiv.innerText = '¡Comando ejecutado y guardado con éxito!';
                 campoComando.value = ''; 
-                campoConfirmar.value = '';
             } else {
                 mensajeDiv.style.color = '#c0392b';
                 mensajeDiv.innerText = '❌ ' + resultado; 
