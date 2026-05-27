@@ -34,38 +34,8 @@
             text-align: center;
             color: #7f8c8d;
             font-size: 14px;
-            margin-bottom: 20px;
-        }
-        
-        /* --- ESTILOS DE LOS NUEVOS BOTONES DE REDIRECCIÓN --- */
-        .seccion-enlaces {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
             margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 2px dashed #bdc3c7;
         }
-        .btn-enlace {
-            display: block;
-            text-align: center;
-            text-decoration: none;
-            padding: 12px;
-            color: white;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: bold;
-            transition: background-color 0.3s, transform 0.1s;
-        }
-        .btn-enlace:active {
-            transform: scale(0.98);
-        }
-        /* Colores para diferenciar las pestañas */
-        .btn-azul { background-color: #3498db; }
-        .btn-azul:hover { background-color: #2980b9; }
-        .btn-gris { background-color: #7f8c8d; }
-        .btn-gris:hover { background-color: #6c7a89; }
-        
         label {
             display: block;
             margin-bottom: 6px;
@@ -174,23 +144,13 @@
 <div class="container">
     <h2>Consola de Ubicaciones</h2>
     <p class="sub">Control de posiciones rápido para el Mapa</p>
-    
-    <div class="seccion-enlaces">
-        <label>Acceso a Otras Pestañas</label>
-        
-        <a href="https://docs.google.com/forms/d/e/1FAIpQLScLoGiFsouR2BVPzduNYmVDT-teY5TYj--fyrG4vhM6DRwU6g/viewform" target="_blank" class="btn-enlace btn-azul">
-            📥 Ingreso de Vehículo
-        </a>
-        
-        <a href="#" target="_blank" class="btn-enlace btn-gris">
-            📊 Ver Reportes (Opcional)
-        </a>
-    </div>
 
     <form id="formularioComando">
+        <!-- Nombre del Operador -->
         <label for="operador">Nombre del Operador</label>
-        <input type="text" id="operador" class="operador-input" placeholder="Ej: Sebastián Rojas" required autocomplete="on">
+        <input type="text" id="operador" class="operador-input" placeholder="Ej: Juan Pérez" required autocomplete="on">
 
+        <!-- El comando de posición -->
         <label for="comando">Ingresa el Comando de Posición</label>
         <input type="text" id="comando" placeholder="Ej: DJS023 enfrente INV523" required autocomplete="off">
 
@@ -221,6 +181,7 @@
             <li><code>DJS023 atras INV523</code> <br>Abajo de la referencia.</li>
             <li><code>DJS023 derecha INV523</code> <br>Al lado derecho.</li>
             <li><code>DJS023 izquierda INV523</code> <br>Al lado izquierdo.</li>
+            <li><code>DJS023 salida</code> <br>Retira el vehículo del mapa.</li>
         </ul>
     </div>
 </div>
