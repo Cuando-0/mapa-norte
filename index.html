@@ -34,8 +34,44 @@
             text-align: center;
             color: #7f8c8d;
             font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        /* --- DISEÑO DE LAS PESTAÑAS (TABS) --- */
+        .tabs-contenedor {
+            display: flex;
+            background-color: #e0e0e0;
+            border-radius: 8px;
+            padding: 4px;
             margin-bottom: 25px;
         }
+        .tab-boton {
+            flex: 1;
+            padding: 10px 5px;
+            background: none;
+            border: none;
+            font-size: 13px;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .tab-boton.active {
+            background-color: white;
+            color: #2c3e50;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        /* CONFIGURACIÓN DE CONTENIDO SÓLO VISIBLE ACTIVO */
+        .tab-contenido {
+            display: none;
+        }
+        .tab-contenido.active {
+            display: block;
+        }
+
         label {
             display: block;
             margin-bottom: 6px;
@@ -52,10 +88,10 @@
             box-sizing: border-box;
             font-size: 15px;
             transition: border-color 0.3s;
-            text-transform: uppercase; /* Fuerza visual de mayúsculas */
+            text-transform: uppercase;
         }
-        input[type="text"]::placeholder {
-            text-transform: none; /* Mantiene el ejemplo en minúscula/normal */
+        input[type="text"].no-caps {
+            text-transform: none;
         }
         input[type="text"]:focus {
             border-color: #3498db;
@@ -63,11 +99,12 @@
         }
         .operador-input {
             border: 2px solid #34495e;
+            margin-bottom: 20px;
         }
         
-        /* SECCIÓN DEL MAPA DE BOTONES INTERACTIVOS */
+        /* SECCIÓN GLOBAL DEL MAPA DE BOTONES INTERACTIVOS */
         .guia-contenedor {
-            margin-top: 20px;
+            margin-top: 10px;
             border-top: 2px dashed #bdc3c7;
             padding-top: 20px;
         }
@@ -123,14 +160,22 @@
             justify-content: center;
         }
         
-        /* Botón de Salida Especial */
-        .btn-salida {
-            grid-column: span 3;
+        /* Botón gigante para procesar Salidas */
+        .btn-ejecutar-salida {
+            width: 100%;
+            padding: 15px;
             background-color: #e74c3c;
-            border: 1px solid #c0392b;
-            margin-top: 5px;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+            text-transform: uppercase;
         }
-        .btn-salida:hover {
+        .btn-ejecutar-salida:hover {
             background-color: #c0392b;
         }
 
@@ -149,34 +194,67 @@
     <h2>Consola de Ubicaciones</h2>
     <p class="sub">Control de posiciones rápido para el Mapa</p>
 
-    <form id="formularioComando" onsubmit="return false;">
-        <label for="operador">Nombre del Operador</label>
-        <input type="text" id="operador" class="operador-input" placeholder="Ej: Juan Pérez" required style="text-transform: none;">
+    <label for="operador">Nombre del Operador</label>
+    <input type="text" id="operador" class="operador-input no-caps" placeholder="Ej: Juan Pérez" required autocomplete="on">
 
-        <label for="vehiculoIngresar">Vehículo a Ingresar (Placa Nueva) o que se Retira </label>
-        <input type="text" id="vehiculoIngresar" placeholder="Ej: DJS023" maxlength="6" required>
+    <div class="tabs-contenedor">
+        <button class="tab-boton active" onclick="cambiarPestana(event, 'tab-ingreso')">📥 Ingreso</button>
+        <button class="tab-boton" onclick="cambiarPestana(event, 'tab-salida')">🛑 Salida</button>
+        <button class="tab-boton" onclick="cambiarPestana(event, 'tab-movimiento')">🔄 Movimiento</button>
+    </div>
 
-        <label for="vehiculoRef">Vehículo de Referencia (Placa del Mapa)</label>
-        <input type="text" id="vehiculoRef" placeholder="Ej: INV523" maxlength="6">
-    </form>
+    <div id="tab-ingreso" class="tab-contenido active">
+        <label for="ingresoVehiculo">Vehículo a Ingresar (Placa Nueva)</label>
+        <input type="text" id="ingresoVehiculo" placeholder="Ej: DJS023" maxlength="6">
 
-    <div class="guia-contenedor">
-        <div class="guia-titulo">📍 Selecciona el Movimiento</div>
+        <label for="ingresoRef">Vehículo de Referencia (Placa del Mapa)</label>
+        <input type="text" id="ingresoRef" placeholder="Ej: INV523" maxlength="6">
+
+        <div class="guia-contenedor">
+            <div class="guia-titulo">📍 Ubicar con respecto a la Referencia</div>
+            <div class="mapa-botones">
+                <div class="celda-vacia"></div>
+                <button type="button" class="btn-direccion" onclick="procesarOperacion('ingreso', 'enfrente')">Enfrente</button>
+                <div class="celda-vacia"></div>
+                <button type="button" class="btn-direccion" onclick="procesarOperacion('ingreso', 'izquierda')">Izquierda</button>
+                <div class="celda-referencia">REF.</div>
+                <button type="button" class="btn-direccion" onclick="procesarOperacion('ingreso', 'derecha')">Derecha</button>
+                <div class="celda-vacia"></div>
+                <button type="button" class="btn-direccion" onclick="procesarOperacion('ingreso', 'atras')">Atrás</button>
+                <div class="celda-vacia"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-salida" class="tab-contenido">
+        <label for="salidaVehiculo">Vehículo que se va del Patio (Placa)</label>
+        <input type="text" id="salidaVehiculo" placeholder="Ej: DJS023" maxlength="6">
         
-        <div class="mapa-botones">
-            <div class="celda-vacia"></div>
-            <button type="button" class="btn-direccion" onclick="procesarMovimiento('enfrente')">Enfrente</button>
-            <div class="celda-vacia"></div>
-            
-            <button type="button" class="btn-direccion" onclick="procesarMovimiento('izquierda')">Izquierda</button>
-            <div class="celda-referencia">REF.</div>
-            <button type="button" class="btn-direccion" onclick="procesarMovimiento('derecha')">Derecha</button>
-            
-            <div class="celda-vacia"></div>
-            <button type="button" class="btn-direccion" onclick="procesarMovimiento('atras')">Atrás</button>
-            <div class="celda-vacia"></div>
+        <button type="button" class="btn-ejecutar-salida" onclick="procesarOperacion('salida', 'salida')">
+            🛑 Confirmar Salida del Vehículo
+        </button>
+    </div>
 
-            <button type="button" class="btn-direccion btn-salida" onclick="procesarMovimiento('salida')">🛑 Registrar Salida del Vehículo</button>
+    <div id="tab-movimiento" class="tab-contenido">
+        <label for="movimientoVehiculo">Vehículo a Mover (Placa Interna)</label>
+        <input type="text" id="movimientoVehiculo" placeholder="Ej: DJS023" maxlength="6">
+
+        <label for="movimientoRef">Vehículo de Nueva Referencia</label>
+        <input type="text" id="movimientoRef" placeholder="Ej: INV523" maxlength="6">
+
+        <div class="guia-contenedor">
+            <div class="guia-titulo">📍 Selecciona la Nueva Posición</div>
+            <div class="mapa-botones">
+                <div class="celda-vacia"></div>
+                <button type="button" class="btn-direccion" onclick="procesarOperacion('movimiento', 'enfrente')">Enfrente</button>
+                <div class="celda-vacia"></div>
+                <button type="button" class="btn-direccion" onclick="procesarOperacion('movimiento', 'izquierda')">Izquierda</button>
+                <div class="celda-referencia">REF.</div>
+                <button type="button" class="btn-direccion" onclick="procesarOperacion('movimiento', 'derecha')">Derecha</button>
+                <div class="celda-vacia"></div>
+                <button type="button" class="btn-direccion" onclick="procesarOperacion('movimiento', 'atras')">Atrás</button>
+                <div class="celda-vacia"></div>
+            </div>
         </div>
     </div>
     
@@ -186,43 +264,74 @@
 <script>
     const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbyvXzfiL91AzhipQpdocPihooWIW4kgXxxQ31UEgJaBwiqzVLtuMjH1-TSNskmBg-oBnQ/exec";
 
-    function procesarMovimiento(direccion) {
+    // Función para alternar el diseño visual entre pestañas
+    function cambiarPestana(evt, nombrePestana) {
+        const contenidos = document.getElementsByClassName("tab-contenido");
+        for (let i = 0; i < contenidos.length; i++) {
+            contenidos[i].classList.remove("active");
+        }
+        const botones = document.getElementsByClassName("tab-boton");
+        for (let i = 0; i < botones.length; i++) {
+            botones[i].classList.remove("active");
+        }
+        document.getElementById(nombrePestana).classList.add("active");
+        evt.currentTarget.classList.add("active");
+        
+        // Limpia mensajes anteriores al cambiar de operación
+        document.getElementById('mensaje').innerText = '';
+    }
+
+    // Procesador Inteligente Unificado
+    function procesarOperacion(tipo, direccion) {
         const mensajeDiv = document.getElementById('mensaje');
         const operador = document.getElementById('operador').value.trim();
-        const vIngresar = document.getElementById('vehiculoIngresar').value.trim().toUpperCase();
-        const vRef = document.getElementById('vehiculoRef').value.trim().toUpperCase();
+        
+        let vTarget = "";
+        let vRef = "";
+        let comandoFinal = "";
 
-        // Validar campos obligatorios básicos
+        // Validar que el operador siempre exista
         if (!operador) {
             mensajeDiv.style.color = '#e67e22';
             mensajeDiv.innerText = '⚠️ Por favor, ingresa el Nombre del Operador.';
             return;
         }
-        if (!vIngresar) {
-            mensajeDiv.style.color = '#e67e22';
-            mensajeDiv.innerText = '⚠️ Por favor, ingresa la placa del Vehículo a Ingresar.';
-            return;
-        }
 
-        let comandoFinal = "";
-
-        // Construir comando según el botón presionado
-        if (direccion === 'salida') {
-            comandoFinal = `${vIngresar} salida`;
-        } else {
-            // Si es un movimiento, el vehículo de referencia es obligatorio
-            if (!vRef) {
+        // Extraer datos dependiendo de la pestaña activa en la que se hizo clic
+        if (tipo === 'ingreso') {
+            vTarget = document.getElementById('ingresoVehiculo').value.trim().toUpperCase();
+            vRef = document.getElementById('ingresoRef').value.trim().toUpperCase();
+            if (!vTarget || !vRef) {
                 mensajeDiv.style.color = '#e67e22';
-                mensajeDiv.innerText = '⚠️ Para ubicar el auto necesitas colocar un Vehículo de Referencia.';
+                mensajeDiv.innerText = '⚠️ Requiere Placa de Ingreso y Referencia.';
                 return;
             }
-            comandoFinal = `${vIngresar} ${direccion} ${vRef}`;
-        }
-        
-        mensajeDiv.style.color = '#34495e';
-        mensajeDiv.innerText = 'Procesando movimiento...';
+            comandoFinal = `${vTarget} ${direccion} ${vRef}`;
 
-        // Enviar la petición al Google Apps Script actual
+        } else if (tipo === 'salida') {
+            vTarget = document.getElementById('salidaVehiculo').value.trim().toUpperCase();
+            if (!vTarget) {
+                mensajeDiv.style.color = '#e67e22';
+                mensajeDiv.innerText = '⚠️ Por favor, ingresa la placa para la salida.';
+                return;
+            }
+            comandoFinal = `${vTarget} salida`;
+
+        } else if (tipo === 'movimiento') {
+            vTarget = document.getElementById('movimientoVehiculo').value.trim().toUpperCase();
+            vRef = document.getElementById('movimientoRef').value.trim().toUpperCase();
+            if (!vTarget || !vRef) {
+                mensajeDiv.style.color = '#e67e22';
+                mensajeDiv.innerText = '⚠️ Requiere Placa a Mover y Nueva Referencia.';
+                return;
+            }
+            comandoFinal = `${vTarget} ${direccion} ${vRef}`;
+        }
+
+        // Ejecutar envío
+        mensajeDiv.style.color = '#34495e';
+        mensajeDiv.innerText = 'Procesando en base de datos...';
+
         fetch(URL_GOOGLE_SCRIPT, {
             method: 'POST',
             body: new URLSearchParams({ 
@@ -234,11 +343,18 @@
         .then(resultado => {
             if (resultado.includes("Éxito")) {
                 mensajeDiv.style.color = '#27ae60';
-                mensajeDiv.innerText = `¡Ubicación guardada con éxito! (${comandoFinal})`;
+                mensajeDiv.innerText = `¡Registrado con éxito! (${comandoFinal})`;
                 
-                // Limpiar celdas de vehículos para el próximo registro
-                document.getElementById('vehiculoIngresar').value = '';
-                document.getElementById('vehiculoRef').value = '';
+                // Limpiar únicamente los inputs de la pestaña usada
+                if (tipo === 'ingreso') {
+                    document.getElementById('ingresoVehiculo').value = '';
+                    document.getElementById('ingresoRef').value = '';
+                } else if (tipo === 'salida') {
+                    document.getElementById('salidaVehiculo').value = '';
+                } else if (tipo === 'movimiento') {
+                    document.getElementById('movimientoVehiculo').value = '';
+                    document.getElementById('movimientoRef').value = '';
+                }
             } else {
                 mensajeDiv.style.color = '#c0392b';
                 mensajeDiv.innerText = '❌ ' + resultado; 
